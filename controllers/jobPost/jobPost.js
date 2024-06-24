@@ -2,6 +2,8 @@ import express from "express";
 
 import JobMessage from "../../models/jobShema.js";
 import PostulateJob from "../../models/postulateShema.js";
+import User from "../../models/userModel.js";
+import { sendMail } from "../mailer.js";
 
 const router = express.Router();
 import mongoose from "mongoose";
@@ -128,7 +130,21 @@ export const validateJobApplication = async (req, res) => {
     await PostulateJob.findByIdAndUpdate(candidateId, {
       $set: { status: "ACCEPT" },
     });
+    const employee = await User.findById(candidate.candidateId);
 
+    const data = {
+      jobName: job.category,
+      status: "acceptée",
+      url: `${process.env.FRONT_END_URL}/employee-dashboard`,
+      detail: "Vous serez contacté par whats'app pour la suite.",
+    };
+
+    sendMail(
+      "candidatureStatusEmailTemplate.html",
+      data,
+      employee.email,
+      "JobBenin"
+    );
     return res.status(200).json({ message: "Candidate accepted" });
   } catch (error) {
     return res.status(500).json({ message: error.message });

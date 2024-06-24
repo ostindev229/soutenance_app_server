@@ -35,7 +35,7 @@ const signup = async (req, res) => {
     console.log(verificationCode);
 
     await sendVerificationSMS(phoneNumber, verificationCode); // Envoie du SMS de vérification
-
+    console.log("Successfully");
     // Enregistrement du code OTP dans la collection OTP
     await OTP.create({
       phoneNumber,

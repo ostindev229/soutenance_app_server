@@ -17,6 +17,7 @@ const getJobsInfoByCandidateId = async (req, res) => {
       });
 
       return {
+        id: postulate._id,
         category: job.category,
         creator: job.creator,
         location: job.location,

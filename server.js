@@ -10,6 +10,8 @@ import postulateRoutes from "./routes/candidatApply.router.js";
 import adminRoutes from "./routes/admin.router.js";
 import userRouter from "./routes/user.router.js";
 import { verifyToken } from "./middlewares/verifyToken.js";
+import transporter from "./controllers/mailer.js";
+
 const app = express();
 
 app.use(bodyParser.json({ limit: "50mb" }));

@@ -1,30 +1,8 @@
 import JobMessage from "../../models/jobShema.js";
 import User from "../../models/userModel.js";
-import nodemailer from "nodemailer";
-import fs from "fs";
-import path from "path";
-import hdls from "handlebars";
-import { fileURLToPath } from "url";
+import { sendMail } from "../mailer.js";
 
 async function updateJobStatusController(req, res) {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    auth: {
-      user: "jsognon8@gmail.com",
-      pass: "dfekruakjmsirtts",
-    },
-  });
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  const templatePath = path.join(
-    __dirname,
-    "templates/jobPostStatusEmailTemplate.html"
-  );
-  console.log(templatePath);
-  const templateSource = fs.readFileSync(templatePath, "utf8");
-  const template = hdls.compile(templateSource);
-
   const { jobId, status } = req.body;
 
   try {
@@ -55,22 +33,19 @@ async function updateJobStatusController(req, res) {
 
     const data = {
       jobName: job.category,
-    };
-    const jobPostStatusEmailHtml = template(data);
-    const mailOptions = {
-      from: process.env.EXPEDITEUR_MAIL, // adresse de l'expéditeur
-      to: recruiter.email, // adresse du destinataire
-      subject: "JobBenin",
-      text: "Contenu du mail en texte brut",
-      html: jobPostStatusEmailHtml, // optionnel
+      status: status === "ACCEPT" ? "acceptée" : "rejetée",
+      url: `${process.env.FRONT_END_URL}/recruiter-dashboard`,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log(error);
-      }
-      console.log("Email envoyé: " + info.response);
-    });
+    console.log("Processing email");
+    console.log(recruiter.email);
+
+    sendMail(
+      "jobPostStatusEmailTemplate.html",
+      data,
+      recruiter.email,
+      "JobBenin"
+    );
 
     return res.json({
       message: "Job status updated successfully",
